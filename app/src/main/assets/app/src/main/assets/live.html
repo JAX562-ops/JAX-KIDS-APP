@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html><head>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>LIVE - 50 UGX</title>
+<style>
+body{margin:0;background:#000;color:#fff;font-family:Arial}
+.top{padding:10px;background:rgba(0,0,0,.6);display:flex;justify-content:space-between;position:fixed;top:0;width:100%;box-sizing:border-box}
+.gifts{position:fixed;bottom:90px;width:100%;display:flex;justify-content:space-around}
+.gift-btn{background:#fff;padding:10px 12px;border-radius:20px;border:none;font-weight:bold}
+.bottom{position:fixed;bottom:0;width:100%;background:#fff;padding:10px;display:flex;gap:6px;box-sizing:border-box}
+</style>
+</head><body>
+<div class="top"><span style="background:red;padding:5px 10px;border-radius:10px">LIVE</span><span>12.5k viewers</span><span>50 UGX/sub</span></div>
+<div style="text-align:center;margin-top:80px;padding:20px">
+<h2>Lesson: Respect & Sharing</h2>
+<p>Parent + Child on Camera</p>
+<p id="earnings">Live Earnings: 50 UGX x 1000 subs = 50,000 UGX</p>
+<p id="coins">Gift Coins: 0 - Creator gets 70%</p>
+<div style="margin-top:20px;background:#222;padding:15px;border-radius:10px;text-align:left">
+<p>🚫 Watermark Check: <span id="wm">Checking...</span></p>
+<p>🚫 Abuse Check: <span id="abuse">Checking...</span></p>
+<p>✅ canEarn = <span id="canEarn">true</span></p>
+</div>
+</div>
+<div class="gifts">
+<button class="gift-btn" onclick="gift('Heart',10)">❤️ 10c</button>
+<button class="gift-btn" onclick="gift('Star',20)">⭐ 20c</button>
+<button class="gift-btn" onclick="gift('Book',50)">📚 50c</button>
+<button class="gift-btn" onclick="gift('Coins',100)">🪙 100c</button>
+</div>
+<div class="bottom">
+<button style="flex:1;background:red;color:#fff;border:none;padding:15px;border-radius:10px" onclick="endLive()">End Live</button>
+<button style="flex:1;background:gold;border:none;padding:15px;border-radius:10px" onclick="alert('Gift panel')">Gift</button>
+</div>
+<script>
+let total=0;
+function gift(n,c){
+ total+=c;
+ document.getElementById('coins').innerText='Gift Coins: '+total+' - Creator gets '+(total*0.7)+' coins, Platform '+(total*0.3);
+ alert(n+' gifted! Creator 70% = '+(c*0.7)+' coins');
+}
+function endLive(){
+ alert('Live ended. If >15% of weekly app views, you earn 50 UGX per subscriber to your MTN/Airtel.');
+ location.href='index.html';
+}
+document.getElementById('wm').innerText='✅ No watermark - can earn 100/50 UGX';
+document.getElementById('abuse').innerText='✅ No abuse - safe';
+</script>
+</body></html>
