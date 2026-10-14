@@ -5,23 +5,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Create missing Android files
+      - name: Create project
         run: |
+          rm -rf.github/workflows/github
           mkdir -p app/src/main/java/com/jaxkids/live
           mkdir -p app/src/main/assets
-          cat > settings.gradle << 'EOF'
-          include ':app'
-          EOF
-          cat > build.gradle << 'EOF'
-          plugins {
-              id 'com.android.application' version '8.2.2' apply false
-              id 'com.android.library' version '8.2.2' apply false
-          }
-          EOF
-          cat > app/build.gradle << 'EOF'
-          plugins {
-              id 'com.android.application'
-          }
+          python3 << 'PY'
+          import pathlib
+          pathlib.Path("settings.gradle").write_text("include ':app'\n")
+          pathlib.Path("build.gradle").write_text("plugins { id 'com.android.application' version '8.2.2' apply false }\n")
+          pathlib.Path("app/build.gradle").write_text("""
+          plugins { id 'com.android.application' }
           android {
               namespace 'com.jaxkids.live'
               compileSdk 34
@@ -43,56 +37,51 @@ jobs:
           }
           dependencies {
               implementation 'androidx.appcompat:appcompat:1.6.1'
-              implementation 'com.google.android.material:material:1.11.0'
               implementation 'androidx.webkit:webkit:1.8.0'
           }
-          EOF
-          cat > app/src/main/AndroidManifest.xml << 'EOF'
-          <?xml version="1.0" encoding="utf-8"?>
+          """)
+          pathlib.Path("app/src/main/AndroidManifest.xml").write_text("""<?xml version="1.0" encoding="utf-8"?>
           <manifest xmlns:android="http://schemas.android.com/apk/res/android">
-              <uses-permission android:name="android.permission.INTERNET"/>
-              <application android:allowBackup="true" android:label="JAX KIDS LIVE" android:theme="@android:style/Theme.NoTitleBar">
-                  <activity android:name=".MainActivity" android:exported="true">
-                      <intent-filter>
-                          <action android:name="android.intent.action.MAIN"/>
-                          <category android:name="android.intent.category.LAUNCHER"/>
-                      </intent-filter>
-                  </activity>
-              </application>
+            <uses-permission android:name="android.permission.INTERNET"/>
+            <application android:label="JAX KIDS LIVE" android:theme="@android:style/Theme.NoTitleBar">
+              <activity android:name=".MainActivity" android:exported="true">
+                <intent-filter>
+                  <action android:name="android.intent.action.MAIN"/>
+                  <category android:name="android.intent.category.LAUNCHER"/>
+                </intent-filter>
+              </activity>
+            </application>
           </manifest>
-          EOF
-          cat > app/src/main/java/com/jaxkids/live/MainActivity.java << 'EOF'
+          """)
+          pathlib.Path("app/src/main/java/com/jaxkids/live/MainActivity.java").write_text("""
           package com.jaxkids.live;
           import android.os.Bundle;
-          import android.webkit.WebSettings;
           import android.webkit.WebView;
           import android.webkit.WebViewClient;
           import androidx.appcompat.app.AppCompatActivity;
           public class MainActivity extends AppCompatActivity {
-              WebView webView;
-              @Override
-              protected void onCreate(Bundle savedInstanceState) {
-                  super.onCreate(savedInstanceState);
-                  webView = new WebView(this);
-                  setContentView(webView);
-                  WebSettings s = webView.getSettings();
-                  s.setJavaScriptEnabled(true);
-                  s.setAllowFileAccess(true);
-                  s.setDomStorageEnabled(true);
-                  webView.setWebViewClient(new WebViewClient());
-                  try {
-                      webView.loadUrl("file:///android_asset/index.html");
-                  } catch (Exception e) {
-                      webView.loadData("<html><body><h1>JAX KIDS LIVE</h1><p>MTN 0778327099<br>Airtel 0708404878</p></body></html>", "text/html", "UTF-8");
-                  }
+            protected void onCreate(Bundle savedInstanceState) {
+              super.onCreate(savedInstanceState);
+              WebView w = new WebView(this);
+              setContentView(w);
+              w.getSettings().setJavaScriptEnabled(true);
+              w.getSettings().setDomStorageEnabled(true);
+              w.getSettings().setAllowFileAccess(true);
+              w.setWebViewClient(new WebViewClient());
+              try {
+                w.loadUrl("file:///android_asset/index.html");
+              } catch (Exception e) {
+                w.loadData("<html><body><h1>JAX KIDS LIVE</h1><h2>MTN 0778327099 Airtel 0708404878</h2></body></html>", "text/html", "UTF-8");
               }
-              @Override
-              public void onBackPressed() {
-                  if (webView.canGoBack()) webView.goBack();
-                  else super.onBackPressed();
-              }
+            }
           }
-          EOF
+          """)
+          p = pathlib.Path("app/src/main/assets/index.html")
+          if not p.exists():
+              p.write_text("<html><head><meta name='viewport' content='width=device-width,initial-scale=1'><style>body{font-family:sans-serif;text-align:center;padding:40px}h1{color:#4CAF50}</style></head><body><h1>JAX KIDS LIVE TEACHING APP</h1><h2>Uganda's #1 Kids Learning</h2><p>Pay: MTN 0778327099</p><p>Airtel 0708404878</p><p>Loading your lessons...</p><script>if(window.location.href.includes('file')){document.body.innerHTML+='<p>App Ready!</p>'}</script></body></html>")
+          PY
+          ls app/src/main/assets/
+          cat app/build.gradle
       - uses: actions/setup-java@v4
         with:
           java-version: '17'
@@ -100,8 +89,7 @@ jobs:
       - uses: gradle/actions/setup-gradle@v3
       - name: Build APK
         run: gradle assembleDebug --no-daemon
-      - name: Upload APK
-        uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v4
         with:
           name: JAX-KIDS-APK
           path: app/build/outputs/apk/debug/*.apk
